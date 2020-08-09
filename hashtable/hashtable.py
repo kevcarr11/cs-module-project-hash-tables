@@ -21,7 +21,8 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        # Your code here
+        self.capacity = capacity
+        self.arr = [None] * 8
 
 
     def get_num_slots(self):
@@ -35,7 +36,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        pass
 
     def get_load_factor(self):
         """
@@ -74,18 +75,17 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
+
         #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.djb2(key) % len(self.arr)
 
     def put(self, key, value):
-        """
-        Store the value with the given key.
+        i = self.hash_index(key)
+        
+        if self.arr[i] != None:
+            print(f'Colision! Overwriting')
 
-        Hash collisions should be handled with Linked List Chaining.
-
-        Implement this.
-        """
-        # Your code here
+        self.arr[i] = value
 
 
     def delete(self, key):
@@ -96,8 +96,12 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        i = self.hash_index(key)
 
+        if i is not None:
+            self.arr.pop(self.hash_index(key))  
+        else:
+            print('key not found')
 
     def get(self, key):
         """
@@ -107,7 +111,8 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        i = self.hash_index(key)
+        return self.arr[i]
 
 
     def resize(self, new_capacity):
