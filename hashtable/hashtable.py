@@ -13,37 +13,25 @@ MIN_CAPACITY = 8
 
 
 class HashTable:
-    """
-    A hash table that with `capacity` buckets
-    that accepts string keys
-
-    Implement this.
-    """
-
+  
     def __init__(self, capacity):
-        # Your code here
+        self.capacity = capacity
+        self.hash_table = [None] * capacity
+        self.total_items = 0
+
 
 
     def get_num_slots(self):
-        """
-        Return the length of the list you're using to hold the hash
-        table data. (Not the number of items stored in the hash table,
-        but the number of slots in the main list.)
-
-        One of the tests relies on this.
-
-        Implement this.
-        """
-        # Your code here
+        return len(self.hash_table)
 
 
     def get_load_factor(self):
         """
-        Return the load factor for this hash table.
-
-        Implement this.
+        number of items in hash table 
+        divided by number of total slots of array
         """
-        # Your code here
+        return self.total_items // self.get_num_slots()
+        
 
 
     def fnv1(self, key):
@@ -62,7 +50,11 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
+        hash = 5381
+        for i in key:
+            hash = ((hash << 5) + hash) + ord(i)
+        
+        return hash & 0xFFFFFFFF
 
 
     def hash_index(self, key):
@@ -70,50 +62,128 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+
+        return self.djb2(key) % len(self.hash_table)
+        # return self.djb2(key) % self.capacity
 
     def put(self, key, value):
-        """
-        Store the value with the given key.
+        index = self.hash_index(key)
+        # check load factor
+        if self.get_load_factor() > 0.7:
+                return self.resize(self.capacity*2)
+        # hash key and search linked list for key
+        # if the key already exists 
+            # replace the value
+        # else 
+            # add new HasTable Entry to the head of the linked list
+            # increment counter
 
-        Hash collisions should be handled with Linked List Chaining.
+        node = self.find(key)
+        
+        if node is not None:
+            self.hash_table[index].value = value
+        else:
+            self.insert_at_head(HashTableEntry(key, value))
+            self.total_items += 1
+             
+    
+    def find(self, key):
+        index = self.hash_index(key)
+        head = self.hash_table[index]
 
-        Implement this.
-        """
-        # Your code here
+        
+
+        while head is not None:
+            if head.key == key:
+                return head
+
+            head = head.next
+
+        return None
+        
+
+    def insert_at_head(self, node):
+        index = self.hash_index(node.key)
+        head = self.hash_table[index]
+    
+        node.next = head
+        head = node
 
 
     def delete(self, key):
-        """
-        Remove the value stored with the given key.
+        # hash the key and get an index
+        # search linked list for matching key
+        # store value of node
+        # delete that node and return value
+        # decrement counter
 
-        Print a warning if the key is not found.
+        index = self.hash_index(key)
+        node = self.hash_table[index]
 
-        Implement this.
-        """
-        # Your code here
+        if node.key == key:
+            deleted_node = node
+            node = node.next
+            return deleted_node
 
+        prev = node
+        node = node.next
+        
+        while node is not None:
+            if node.key == i:
+                prev.next = node.next
+                self.total_items -= 1
+                return node
+            else:
+                prev = node
+                node = node.next
+
+        return None
+
+        
 
     def get(self, key):
-        """
-        Retrieve the value stored with the given key.
+        # hash the key and get an index
+        # get the linked list at the computed index
+        # search linked list for the key
+        # if key exists return value
+        # otherwise return None
 
-        Returns None if the key is not found.
+        
+        i = self.hash_index(key)
+        node = self.hash_table[i]
 
-        Implement this.
-        """
-        # Your code here
+        cur = node
+        
+
+        while cur is not None:
+            if cur.key == key:
+                return cur.value
+            else:
+                cur = cur.next
+
+        return None
+        
+        
+        
+
 
 
     def resize(self, new_capacity):
         """
-        Changes the capacity of the hash table and
-        rehashes all key/value pairs.
-
-        Implement this.
+        make a new array that double the original size
+        Go through each linked list in array
+            go through each item and rehash it
+            then insert items into new index of array
         """
-        # Your code here
+        new_array = [None] * new_capacity
+
+        for head in self.hash_table:
+            while head is not None:
+                index = self.hash_index(head.key)
+                new_array[index] = head
+            self.hash_table = new_array
+
+        
 
 
 
